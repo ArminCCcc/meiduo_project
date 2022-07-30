@@ -11,10 +11,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
-import os
+import os,sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# 追加导包路径指向apps包
+# sys.path.insert(0,'E:\\pythonProject\\meiduo_project\\meiduo_mall\\meiduo_mall\\apps')
+sys.path.insert(0,os.path.join(BASE_DIR,'apps'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -38,6 +42,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'users', # 用户模块
+    'contents', # 首页广告模块
+    'verifications',# 验证码模块
 ]
 
 MIDDLEWARE = [
@@ -78,7 +85,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
             ],
             # 补充jinja2模板引擎环境
-            'enviroment':'meiduo_mall.utils.jinja2_env.jinja2_environment',
+            'environment':'meiduo_mall.utils.jinja2env.jinja2_environment',
         },
     },
 ]
@@ -90,40 +97,48 @@ WSGI_APPLICATION = 'meiduo_mall.wsgi.application'
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'HOST':'192.168.0.111',# 数据库主机
-        'USER':'armin',# 数据库用户名
-        'PASSWORD':'123456',# 数据库用户密码
-        'NAME': 'meiduo',# 数据库名字
-    },
     # 'default': {
     #     'ENGINE': 'django.db.backends.mysql',
-    #     'HOST':'localhost',# 数据库主机
-    #     'USER':'root',# 数据库用户名
-    #     'PASSWORD':'root',# 数据库用户密码
+    #     'HOST':'192.168.0.111',# 数据库主机
+    #     'USER':'armin',# 数据库用户名
+    #     'PASSWORD':'123456',# 数据库用户密码
     #     'NAME': 'meiduo',# 数据库名字
-    # }
+    # },
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'HOST':'localhost',# 数据库主机
+        'USER':'root',# 数据库用户名
+        'PASSWORD':'root',# 数据库用户密码
+        'NAME': 'meiduo',# 数据库名字
+    },
 }
 
 # 配置redis数据库
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        # "LOCATION": "redis://127.0.0.1:6379/0",
-        "LOCATION": "redis://192.168.0.111/0",
+        "LOCATION": "redis://127.0.0.1:6379/0",
+        # "LOCATION": "redis://192.168.0.111/0",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     },
     "session": { # session
         "BACKEND": "django_redis.cache.RedisCache",
-        # "LOCATION": "redis://127.0.0.1:6379/1",
-        "LOCATION": "redis://192.168.0.111/1",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        # "LOCATION": "redis://192.168.0.111/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
-    }
+    },
+    "verify_code": { # captcha 验证码
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/2",
+        # "LOCATION": "redis://192.168.0.111/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
 }
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "session"
@@ -212,3 +227,5 @@ LOGGING = {
     }
 }
 
+# 指定自定义的用户模型类：值的语法===>子应用，用户模型类
+AUTH_USER_MODEL = 'users.User'
