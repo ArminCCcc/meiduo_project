@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'users', # 用户模块
     'contents', # 首页广告模块
     'verifications',# 验证码模块
+    'areas',# 省市区三级联动
+    'goods',# 商品模块
 ]
 
 MIDDLEWARE = [
@@ -97,20 +99,20 @@ WSGI_APPLICATION = 'meiduo_mall.wsgi.application'
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'HOST':'192.168.0.111',# 数据库主机
-    #     'USER':'armin',# 数据库用户名
-    #     'PASSWORD':'123456',# 数据库用户密码
-    #     'NAME': 'meiduo',# 数据库名字
-    # },
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'HOST':'localhost',# 数据库主机
-        'USER':'root',# 数据库用户名
-        'PASSWORD':'root',# 数据库用户密码
+        'HOST':'192.168.0.111',# 数据库主机
+        'USER':'armin',# 数据库用户名
+        'PASSWORD':'123456',# 数据库用户密码
         'NAME': 'meiduo',# 数据库名字
     },
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'HOST':'localhost',# 数据库主机
+    #     'USER':'root',# 数据库用户名
+    #     'PASSWORD':'root',# 数据库用户密码
+    #     'NAME': 'meiduo',# 数据库名字
+    # },
 }
 
 # 配置redis数据库
@@ -134,7 +136,7 @@ CACHES = {
     "verify_code": { # captcha 验证码
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://127.0.0.1:6379/2",
-        # "LOCATION": "redis://192.168.0.111/1",
+        # "LOCATION": "redis://192.168.0.111/2",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -246,3 +248,9 @@ EMAIL_FROM = '美多商城<cc2llll@163.com>' # 发件人抬头
 
 # 邮箱验证链接
 EMAIL_VERIFY_URL = 'http://127.0.0.1:8000/emails/verification/'
+
+# 指定自定义的Django文件存储类
+DEFAULT_FILE_STORAGE = 'meiduo_mall.utils.fastdfs.fdfs_storage.FastDFSStorage'
+
+# FastDFS相关参数
+FDFS_BASE_URL = 'http://192.168.0.111:8888/'

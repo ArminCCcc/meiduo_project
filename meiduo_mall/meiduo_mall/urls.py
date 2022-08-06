@@ -25,4 +25,6 @@ urlpatterns = [
     url(r'^', include('contents.urls', namespace='contents')),
     # verifications
     url(r'^', include('verifications.urls')),
+    #areas
+    url(r'^',include('areas.urls'))
 ]
