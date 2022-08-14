@@ -42,15 +42,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'haystack', # 全文检索
+    'haystack',  # 全文检索
 
-    'users', # 用户模块
-    'contents', # 首页广告模块
+    'users',  # 用户模块
+    'contents',  # 首页广告模块
     'verifications',# 验证码模块
     'areas',    # 省市区三级联动
     'goods',    # 商品模块
     'carts',    # 购物车
     'orders',   # 订单页
+    'payment',   # 支付
 
 ]
 
@@ -289,5 +290,11 @@ HAYSTACK_CONNECTIONS = {
 # 当添加、修改、删除数据时，自动生成索引
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
-# HAYSTACKs-分页时每页记录条数
+# HAYSTACK-分页时每页记录条数
 HAYSTACK_SEARCH_RESULTS_PER_PAGE = 5
+
+# 支付宝
+ALIPAY_APPID = '2021000121646530'
+ALIPAY_DEBUG = True
+ALIPAY_URL = 'https://openapi.alipaydev.com/gateway.do'
+ALIPAY_RETURN_URL = 'http://127.0.0.1:8000/payment/status/'
