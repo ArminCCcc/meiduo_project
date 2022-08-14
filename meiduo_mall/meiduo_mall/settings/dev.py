@@ -47,8 +47,10 @@ INSTALLED_APPS = [
     'users', # 用户模块
     'contents', # 首页广告模块
     'verifications',# 验证码模块
-    'areas',# 省市区三级联动
-    'goods',# 商品模块
+    'areas',    # 省市区三级联动
+    'goods',    # 商品模块
+    'carts',    # 购物车
+    'orders',   # 订单页
 
 ]
 
@@ -104,7 +106,7 @@ WSGI_APPLICATION = 'meiduo_mall.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'HOST':'192.168.0.111',# 数据库主机
+        'HOST':'192.168.3.133',# 数据库主机
         'USER':'armin',# 数据库用户名
         'PASSWORD':'123456',# 数据库用户密码
         'NAME': 'meiduo',# 数据库名字
@@ -144,6 +146,22 @@ CACHES = {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     },
+    "history": { # 用户商品浏览记录
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/3",
+        # "LOCATION": "redis://192.168.0.111/3",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    "carts": { # 用户商品浏览记录
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/4",
+        # "LOCATION": "redis://192.168.0.111/3",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
 }
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "session"
@@ -173,7 +191,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+# TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
@@ -256,13 +275,13 @@ EMAIL_VERIFY_URL = 'http://127.0.0.1:8000/emails/verification/'
 DEFAULT_FILE_STORAGE = 'meiduo_mall.utils.fastdfs.fdfs_storage.FastDFSStorage'
 
 # FastDFS相关参数
-FDFS_BASE_URL = 'http://192.168.0.111:8888/'
+FDFS_BASE_URL = 'http://192.168.3.133:8888/'
 
 # Haystack
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
-        'URL': 'http://192.168.0.111:9200/', # Elasticsearch服务器ip地址，端口号固定为9200
+        'URL': 'http://192.168.3.133:9200/', # Elasticsearch服务器ip地址，端口号固定为9200
         'INDEX_NAME': 'meiduo_mall', # Elasticsearch建立的索引库的名称
     },
 }

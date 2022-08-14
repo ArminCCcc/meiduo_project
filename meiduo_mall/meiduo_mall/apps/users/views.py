@@ -9,16 +9,71 @@ from django_redis import get_redis_connection
 from django.contrib.auth.mixins import LoginRequiredMixin
 import re,logging,json
 
+from carts.utils import merge_carts_cookies_redis
 from meiduo_mall.utils.views import LoginRequiredJSONMixin
 from meiduo_mall.utils.response_code import RETCODE
 from users.models import User,Address
 from celery_tasks.email.tasks import send_verify_email
 from users.utils import generate_verify_email_url,check_verify_email_token
+from goods.models import SKU
 from . import constants
+
 # Create your views here.
 
 # 创建日志输出器
 longger = logging.getLogger('django')
+
+
+class UserBrowseHistory(LoginRequiredJSONMixin,View):
+    """用户浏览记录"""
+    def post(self,request):
+        # 保存用户商品浏览记录
+        # 接收参数
+        json_str = request.body.decode()  # json传过来的一个byte的json数据，将其转成字符串
+        json_dict = json.loads(json_str)
+        sku_id = json_dict.get('sku_id')
+        #  效验参数
+        try:
+            SKU.objects.get(id=sku_id)
+        except SKU.DoesNotExist:
+            return http.HttpResponseForbidden('参数sku_id错误')
+
+        # 保存sku_id到redis
+        user = request.user
+        redis_conn = get_redis_connection('history')
+        pl = redis_conn.pipeline()
+        # 先去重
+        pl.lrem('history_%s' % user.id, 0, sku_id)    # 0代表全部截取
+        # 在保存:最近浏览的商品在最前面
+        pl.lpush('history_%s' % user.id, sku_id)
+        # 最后截取
+        pl.ltrim('history_%s' % user.id, 0, 4)
+        pl.execute()
+
+        # 响应结果
+        return http.JsonResponse({'code':RETCODE.OK,'essmsg':'OK'})
+
+    def get(self,request):
+        """查询用户的浏览记录"""
+        # 获取用户信息
+        user = request.user
+        # 创建redis对象
+        redis_conn = get_redis_connection('history')
+        # 取出列表数据（核心代码）
+        sku_ids = redis_conn.lrange('history_%s' % user.id,0,-1)
+
+        # 将模型转成字典
+        skus = []
+        for sku_id in sku_ids:
+            sku = SKU.objects.get(id=sku_id)
+            skus.append({
+                'id':sku.id,
+                'name':sku.name,
+                'price':sku.price,
+                'default_image_url':sku.default_image.url
+            })
+
+        return http.JsonResponse({'code':RETCODE.OK,'errmsg':'OK','skus':skus})
 
 
 class UpdateTitleAddressView(LoginRequiredJSONMixin,View):
@@ -384,6 +439,8 @@ class LoginView(View):
         # response.set_cookie('key','val','expiry')
         response.set_cookie('username',user.username,max_age=3600 * 24 * 15 )
 
+        # 用户登录成功合并cookie购物车到redis购物车
+        response = merge_carts_cookies_redis(request=request,user=user,response=response)
         # 响应结果：重定向到首页
         return response
 
