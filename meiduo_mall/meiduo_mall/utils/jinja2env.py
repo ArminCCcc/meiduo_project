@@ -1,6 +1,6 @@
 from django.urls import reverse
 from jinja2 import Environment
-from django.contrib.staticfiles.storage import  staticfiles_storage
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 
 def jinja2_environment(**options):

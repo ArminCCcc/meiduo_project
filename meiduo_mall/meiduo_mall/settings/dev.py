@@ -12,8 +12,15 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os,sys
+import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+'''
+__file__===>当前文件名dev.py
+os.path.abspath()===>/home/python/Desktop/meiduo_tbd39/meiduo_mall/meiduo_mall/settings/dev.py
+os.path.dirname()===>/home/python/Desktop/meiduo_tbd39/meiduo_mall/meiduo_mall/settings
+os.path.dirname()===>/home/python/Desktop/meiduo_tbd39/meiduo_mall/meiduo_mall
+'''
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # 追加导包路径指向apps包
@@ -44,18 +51,37 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'haystack',  # 全文检索
 
-    'users',  # 用户模块
-    'contents',  # 首页广告模块
-    'verifications',# 验证码模块
-    'areas',    # 省市区三级联动
-    'goods',    # 商品模块
-    'carts',    # 购物车
-    'orders',   # 订单页
-    'payment',   # 支付
+    # 'users',  # 用户模块
+    # 'contents',  # 首页广告模块
+    # 'verifications',# 验证码模块
+    # 'areas',    # 省市区三级联动
+    # 'goods',    # 商品模块
+    # 'carts',    # 购物车
+    # 'orders',   # 订单页
+    # 'payment',   # 支付
+
+    # 完整导包路径
+    # 'meiduo_mall.apps.users.apps.UsersConfig',
+    'users.apps.UsersConfig',
+    'verifications.apps.VerificationsConfig',
+    'contents.apps.ContentsConfig',
+    # 'oauth.apps.OauthConfig',
+    'areas.apps.AreasConfig',
+    'goods.apps.GoodsConfig',
+    'carts.apps.CartsConfig',
+    'orders.apps.OrdersConfig',
+    'payment.apps.PaymentConfig',
+    'meiduo_admin.apps.MeiduoAdminConfig',
+
+    'corsheaders', # 跨域模块
+    # 'haystack',
+    # 'django_crontab',  # 定时任务
+
 
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -255,8 +281,14 @@ LOGGING = {
 # 指定自定义的用户模型类：值的语法===>子应用，用户模型类
 AUTH_USER_MODEL = 'users.User'
 
+# # # 指定自定义用户认证后端
+# AUTHENTICATION_BACKENDS = ['users.utils.UsernameMobileBackend']
+
 # 指定自定义用户认证后端
-AUTHENTICATION_BACKENDS = ['users.utils.UsernameMobileBackend']
+AUTHENTICATION_BACKENDS = ['users.utils.MeiduoModelBackend']
+
+# # 指定认证后端
+# AUTHENTICATION_BACKENDS = ['meiduo_mall.utils.authenticate.MeiduoModelBackend']
 
 # 判断用户是否登录后，指定未登录用户重定向的地址
 LOGIN_URL = '/login/'
@@ -298,3 +330,30 @@ ALIPAY_APPID = '2021000121646530'
 ALIPAY_DEBUG = True
 ALIPAY_URL = 'https://openapi.alipaydev.com/gateway.do'
 ALIPAY_RETURN_URL = 'http://127.0.0.1:8000/payment/status/'
+
+# CRONTAB_COMMAND_PREFIX = 'LANG_ALL=zh_cn.UTF-8'  # 支持中文
+# CORS
+CORS_ORIGIN_WHITELIST = (
+    'http://127.0.0.1:8080',
+    'http://127.0.0.1:8000',
+    'http://localhost:8080',
+    'http://www.meiduo.site:8080',
+    'http://api.meiduo.site:8000'
+)
+CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
+
+REST_FRAMEWORK = {
+    # 指定认证
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+}
+
+JWT_AUTH = {
+    # 指定有效期
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
+    # 指定返回结果方法
+    'JWT_RESPONSE_PAYLOAD_HANDLER':'meiduo_admin.utils.jwt_response_payload_handler',
+}
